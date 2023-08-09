@@ -1,2 +1,4 @@
 node_modules/
 .env
+/model/db_testing.js
+/model/tests.pgsql
