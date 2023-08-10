@@ -4,10 +4,12 @@ const fetch_db_index = require("../fetching_funcs/fetch_db_index");
 const get_index = (req, res) => {
   fetch_db_index() // fetch blog and corresponding user information -> see fetch_db_index.js
     .then((data) => {
-      res.status(200).json(data);
+      res.status(200).json({ data, user: res.locals.user });
     })
     .catch((err) => {
-      res.status(400).json({ error: err.message, data: null });
+      res
+        .status(400)
+        .json({ error: err.message || err, data: null, user: res.locals.user });
     });
 };
 

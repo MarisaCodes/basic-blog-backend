@@ -2,6 +2,7 @@
 
 - [Database Schema](#database-schema)
 - [Server overview](#server-overview)
+- [Auth](#authorization)
 
 ## Database Schema
 
@@ -16,7 +17,8 @@ CREATE TABLE users (
     pfp_mime TEXT NOT NULL DEFAULT 'image/png',
     -- the default base64 image I used has this mimetype
     about TEXT,
-    registered_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    registered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    refresh_token TEXT
 );
 CREATE TABLE blogs (
     id SERIAL NOT NULL PRIMARY KEY,
@@ -47,3 +49,19 @@ const app = express();
 Some middleware for development purposes like `morgan` to output logs of server requests and responses for debugging issues and just improving the overall ease of development.
 
 The actual functions that handle user requests and respond to those requests are in the controllers folder. The routers folder makes use of `express.Router()` to create a mini app within the file and handle user requests to the specified routes.
+
+Some important middleware functions I am using:
+
+```js
+...
+app.use(express.json()) // to parse json body in request
+app.use(cookieParser()) // to parse cookies
+...
+```
+
+Note: `CookieParser` is invoked from an npm package `npm install cookie-parser`.
+
+## Authorization
+
+I have decided to make use of `jsonwebtoken` for this project. `npm install jsonwebtoken`.
+Two tokens are created on signup, an access token that is set as an `httpOnly` cookie and a refresh token that is stored in the database to refresh the access token whenever it expires for a specific duration. The refresh token expires after the access token. This is (arguably) safer than storing the cookie in session or local storage because the vulnerability to XSS attacks would be higher. However, setting `httpOnly` cookies still makes you vulnerable to XSRF attacks. I plan to mitigate this later on when I make the frontend by using a naive double cookie submit technique, but I will only send an addtional token in the `authorization` header of the requests rather than using another cookie which is pointless against XSRF.

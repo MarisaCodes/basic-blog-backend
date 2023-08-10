@@ -7,7 +7,8 @@ CREATE TABLE users (
     pfp_mime TEXT NOT NULL DEFAULT 'image/png',
     -- the default base64 image I used has this mimetype
     about TEXT,
-    registered_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    registered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    refresh_token TEXT
 );
 CREATE TABLE blogs (
     id SERIAL NOT NULL PRIMARY KEY,
