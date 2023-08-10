@@ -9,9 +9,9 @@ const get_refresh_token = async (username) => {
     sql`select refresh_token from users where username = ${username};`
       .then((data) => {
         if (data?.length) resolve(data[0].refresh_token);
-        else reject(null);
+        else reject("no such user");
       })
-      .catch((err) => reject(err.message || err, 0));
+      .catch((err) => reject(err?.message || err, 0));
   });
 };
 // authentication middleware (checking token validity on every server request)
@@ -36,7 +36,7 @@ const auth_middleware = (req, res, next) => {
       })
       .catch((err) => {
         // db fetch error handling
-        console.log(err.message || err, 1);
+        console.log(err?.message || err, 1);
         res.clearCookie("access_token");
         res.locals.user = null;
         next();
@@ -44,7 +44,7 @@ const auth_middleware = (req, res, next) => {
       });
   } catch (err) {
     // if access token is expired
-    const username = req.body?.username;
+    const username = req.headers?.authorization.split(" ")[1];
     get_refresh_token(username) // fetch db for refresh token
       .then((refresh_token) => {
         jwt.verify(
@@ -77,7 +77,7 @@ const auth_middleware = (req, res, next) => {
               })
               .catch((err) => {
                 // catch db user fetch error
-                console.log(err.message || err, 2);
+                console.log(err?.message || err, 2);
                 res.clearCookie("access_token");
                 res.locals.user = null;
                 next();
@@ -88,7 +88,7 @@ const auth_middleware = (req, res, next) => {
       })
       .catch((err) => {
         // catch refresh token fetch error
-        console.log(err.message || err, 3);
+        console.log(err?.message || err, 3);
         res.clearCookie("access_token");
         res.locals.user = null;
         next();

@@ -21,8 +21,20 @@ require("dotenv").config();
 
 // GET Signup page
 const get_signup = (req, res) => {
-  if (res.locals.user !== null) res.status(302).json({ user: res.locals.user });
-  else res.status(200).json({ user: res.locals.user });
+  sql`select username from users`
+    .then((data) => {
+      const users = data?.map((user) => {
+        return user.username;
+      });
+      if (res.locals.user !== null)
+        res.status(302).json({ user: res.locals.user, users });
+      else res.status(200).json({ user: res.locals.user, users });
+    })
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ error: err?.message || err, user: res.locals.user })
+    );
 };
 
 // middleware for handling formdata file upload
@@ -61,17 +73,17 @@ const post_signup_controller = (req, res, next) => {
             })
             .catch((err) => {
               // if something goes wrong while inserting user into db
-              res.status(500).json({ error: err.message || err });
+              res.status(500).json({ error: err?.message || err });
             });
         })
         .catch((err) => {
           // if something goes wrong with hashing
-          res.status(500).json({ error: err.message || err });
+          res.status(500).json({ error: err?.message || err });
         });
     })
     .catch((err) => {
       // if username is not unique
-      res.status(400).json({ error: err.message || err });
+      res.status(400).json({ error: err?.message || err });
     });
 };
 // after inserting using middleware to sign an access jsonwebtoken and send it to user
@@ -96,7 +108,7 @@ const set_refresh_token = (username) => {
       })
       .catch((err) => {
         // catch db update error
-        reject(err.message || err);
+        reject(err?.message || err);
       });
   });
 };
@@ -114,7 +126,7 @@ const send_jwt = (req, res) => {
       res.cookie("access_token", token, { httpOnly: true, sameSite: "Lax" });
       res.status(200).send("success");
     })
-    .catch((err) => res.status(500).json({ error: err.message || err }));
+    .catch((err) => res.status(500).json({ error: err?.message || err }));
 };
 
 // GET Login
@@ -154,19 +166,19 @@ const post_login = (req, res) => {
                 .send("login access token issued and refresh token set"); // to be replaced with redirect
             })
             .catch((err) =>
-              res.status(500).json({ error: err.message || err })
+              res.status(500).json({ error: err?.message || err })
             );
         })
         .catch((err) => {
-          if ((err || err.message) === "The password you entered is wrong 😔")
-            res.status(400).json({ error: err.message || err });
-          else res.status(500).json({ error: err.message || err });
+          if ((err || err?.message) === "The password you entered is wrong 😔")
+            res.status(400).json({ error: err?.message || err });
+          else res.status(500).json({ error: err?.message || err });
         });
     })
     .catch((err) => {
-      if ((err || err.message) === "The username you entered is wrong 😔")
-        res.status(400).json({ error: err.message || err });
-      else res.status(500).json({ error: err.message || err });
+      if ((err || err?.message) === "The username you entered is wrong 😔")
+        res.status(400).json({ error: err?.message || err });
+      else res.status(500).json({ error: err?.message || err });
     });
 };
 module.exports = {

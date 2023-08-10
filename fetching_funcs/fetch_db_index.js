@@ -22,7 +22,7 @@ const fetch_db_index = () => {
       else throw new Error("wow such empty");
       return res;
     } catch (err) {
-      reject(err.message || err);
+      reject(err?.message || err);
     }
   });
 };

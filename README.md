@@ -4,7 +4,7 @@
 - [Server overview](#server-overview)
 - [Auth](#authorization)
 - [Postman](#postman)
-- [References]()
+- [References](#references)
 
 ## Database Schema
 

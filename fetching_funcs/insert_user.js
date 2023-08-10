@@ -15,7 +15,7 @@ const is_user_unique = (username) => {
       if (data?.length) reject("Sorry, this username is already taken 😢");
       else if (data?.length === 0) resolve(true);
     } catch (err) {
-      reject(err.message || err);
+      reject(err?.message || err);
     }
   });
 };
@@ -24,11 +24,11 @@ const hash_password = (password) => {
   return new Promise(async (resolve, reject) => {
     try {
       bcrypt.hash(password, Number(process.env.SALT_ROUNDS), (err, hash) => {
-        if (err) reject(err.message || err);
+        if (err) reject(err?.message || err);
         else resolve(hash);
       });
     } catch (err) {
-      reject(err.message || err);
+      reject(err?.message || err);
     }
   });
 };
@@ -42,7 +42,7 @@ const handle_upload = async (file) => {
       .then((bf) => {
         resolve({ base64: bf.toString("base64"), mimetype });
       })
-      .catch((err) => reject(err.message || err));
+      .catch((err) => reject(err?.message || err));
   });
 };
 
@@ -67,7 +67,7 @@ const insert_user = (user, file) => {
                     )
                 returning username;`;
               })
-              .catch((err) => reject(err.message || err));
+              .catch((err) => reject(err?.message || err));
           }
         })
         .then((data) => {
@@ -75,10 +75,10 @@ const insert_user = (user, file) => {
           else reject("an error has occured");
         })
         .catch((err) => {
-          reject(err.message || err);
+          reject(err?.message || err);
         });
     } catch (err) {
-      reject(err.message || err);
+      reject(err?.message || err);
     }
   });
 };
