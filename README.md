@@ -104,8 +104,7 @@ By the time I have finished the sign up page logic and some of the auth middlewa
 
 Example: User signup API
 
-<video src="./private/postman_signup_demo_compressed.mp4" controls="controls" style="max-width: 730px;">
-</video>
+![](./private/postman_signup_demo_compressed.gif)
 
 So first I make a get requests to http://localhost:3050/api/
 This gives me `200` status code, with an error message "wow such empty" since I still don't have any blogs posted. And the user is set to `null` by action of some auth/token verification middleware. The get request is successful but no user is logged in (i.e. no valid token in cookie) and no blog data is on the database.
