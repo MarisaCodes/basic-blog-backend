@@ -7,9 +7,18 @@ const get_index = (req, res) => {
       res.status(200).json({ data, user: res.locals.user });
     })
     .catch((err) => {
-      res
-        .status(400)
-        .json({ error: err.message || err, data: null, user: res.locals.user });
+      if (err || err.message === "wow such empty")
+        res.status(200).json({
+          error: err.message || err,
+          data: null,
+          user: res.locals.user,
+        });
+      else
+        res.status(400).json({
+          error: err.message || err,
+          data: null,
+          user: res.locals.user,
+        });
     });
 };
 
