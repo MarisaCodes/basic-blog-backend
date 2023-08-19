@@ -12,10 +12,10 @@ require("dotenv").config();
 const app = express();
 
 // middleware
+app.use(cors({origin: "http://localhost:3000", credentials: true}));
 app.use(morgan("dev")); // dev
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors());
 // routes
 app.get("/", (req, res) => res.send("hello world")); // for testing
 // homepage

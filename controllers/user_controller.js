@@ -18,7 +18,10 @@ const jwt = require("jsonwebtoken");
 const sql = require("../model/db");
 
 require("dotenv").config();
-
+// GET auth
+const get_auth = (req, res) => {
+  res.status(200).json({ user: res.locals.user });
+};
 // GET Signup page
 const get_signup = (req, res) => {
   sql`select username from users`
@@ -95,7 +98,7 @@ const set_refresh_token = (username) => {
     { username },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: 120,
+      expiresIn: 60 * 5,
     }
   );
   return new Promise((resolve, reject) => {
@@ -163,7 +166,7 @@ const post_login = (req, res) => {
             .then(() => {
               res
                 .status(200)
-                .send("login access token issued and refresh token set"); // to be replaced with redirect
+                .send("login access token issued and refresh token set");
             })
             .catch((err) =>
               res.status(500).json({ error: err?.message || err })
@@ -182,6 +185,7 @@ const post_login = (req, res) => {
     });
 };
 module.exports = {
+  get_auth,
   get_signup,
   upload,
   post_signup_controller,

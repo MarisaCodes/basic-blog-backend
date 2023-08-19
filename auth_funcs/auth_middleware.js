@@ -19,7 +19,7 @@ const auth_middleware = (req, res, next) => {
   const access_token = req.cookies?.access_token;
   if (!access_token) {
     // if no access token in cookies, move on to next middleware
-    res.clearCookie("token");
+    res.clearCookie("access_token");
     res.locals.user = null;
     next();
     return;
@@ -44,7 +44,21 @@ const auth_middleware = (req, res, next) => {
       });
   } catch (err) {
     // if access token is expired
-    const username = req.headers?.authorization.split(" ")[1];
+    let username = null;
+    if (err.name === "TokenExpiredError")
+      username = jwt.decode(access_token)?.username;
+    else {
+      res.clearCookie("access_token");
+      res.locals.user = null;
+      next();
+      return;
+    }
+    if (!username) {
+      res.clearCookie("access_token");
+      res.locals.user = null;
+      next();
+      return;
+    }
     get_refresh_token(username) // fetch db for refresh token
       .then((refresh_token) => {
         jwt.verify(

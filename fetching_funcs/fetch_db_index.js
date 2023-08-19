@@ -8,13 +8,14 @@ const fetch_db_index = () => {
     try {
       const res = await sql`select 
         username,
+        about,
         blogs.id as blog_id,
         content,
         title,
         created_at,
         updated_at,
-        slug,
         pfp_mime,
+        registered_at,
         encode(pfp, 'base64') as pfp
          from (blogs join users on users.id = blogs.author_id)
          ORDER BY updated_at DESC;`;

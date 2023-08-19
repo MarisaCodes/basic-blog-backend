@@ -8,9 +8,11 @@ const {
   post_login,
   get_signup,
   get_login,
+  get_auth,
 } = require("../controllers/user_controller");
 const auth_middleware = require("../auth_funcs/auth_middleware");
-
+// GET Auth route /api/auth
+user_routes.get("/auth", auth_middleware, get_auth);
 // Signup route
 // get signup
 user_routes.get("/signup", auth_middleware, get_signup);
