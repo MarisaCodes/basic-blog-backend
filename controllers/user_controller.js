@@ -98,7 +98,7 @@ const set_refresh_token = (username) => {
     { username },
     process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: 60 * 5,
+      expiresIn: 60 * 60,
     }
   );
   return new Promise((resolve, reject) => {

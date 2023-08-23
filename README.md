@@ -29,7 +29,6 @@ CREATE TABLE blogs (
     author_id INT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    slug TEXT NOT NULL,
     CONSTRAINT fk_author_id FOREIGN KEY(author_id) REFERENCES users(id)
 );
 ```
@@ -82,7 +81,19 @@ npm install cookie-parser
 npm install multer
 ```
 
+Everything else in the server is quite standard I feel. Users can update,delete, and edit/patch their blog posts. I have included only the parts that were slightly new to me and that I felt the need to document. My code is commented as well so I will use that as reference for the "standard: stuff.
+
 ## Authorization
+
+I have setup the frontend signup and login such that the request headers will include an authorization header:
+
+```js
+// ...code
+const headers = new Headers();
+headers.set("Authorization", "Basic " + btoa(`${username}:${password}`));
+fetch("/api/signup", { method: "POST", headers: headers }).then().catch();
+//...code
+```
 
 I have decided to make use of `jsonwebtoken` for this project:
 
@@ -90,7 +101,23 @@ I have decided to make use of `jsonwebtoken` for this project:
 npm install jsonwebtoken
 ```
 
-Two tokens are created on signup, an access token that is set as an `httpOnly` cookie and a refresh token that is stored in the database to refresh the access token whenever it expires for a specific duration. The refresh token expires after the access token. This is (arguably) safer than storing the cookie in session or local storage because the vulnerability to XSS attacks would be higher. However, setting `httpOnly` cookies still makes you vulnerable to XSRF attacks. I will look into `cors` policy, whitelisting, and `SameSite` later when I start working on the frontend to try and mitigate XSRF vulnerabilities.
+Two tokens are created on signup, an access token that is set as an `httpOnly` cookie (gets sent with every request from the frontend and every response from the backend with setting `{credentials:"include"}` fetch option in the frontend with every API call that needs the cookie) and a refresh token that is stored in the database to refresh the access token whenever it expires for a specific duration. The refresh token expires after the access token. This is (arguably) safer than storing the cookie in session or local storage because the vulnerability to XSS attacks would be higher. However, setting `httpOnly` cookies still makes you vulnerable to XSRF attacks. I use `cors`:
+
+```
+npm install cors
+```
+
+and
+
+```js
+require("dotenv").config();
+
+//...code
+
+app.use(cors({ origin: process.env.ORIGIN, credentials: true }));
+
+// ...code
+```
 
 Note: for password hashing I have used `bcrypt`:
 
@@ -100,26 +127,7 @@ npm install bcrypt
 
 ## Postman
 
-By the time I have finished the sign up page logic and some of the auth middleware (for token expiry verification) I started using postman to test out my REST API routes.
-
-Example: User signup API
-
-![](./private/postman_signup_demo_compressed.gif)
-
-So first I make a get requests to http://localhost:3050/api/
-This gives me `200` status code, with an error message "wow such empty" since I still don't have any blogs posted. And the user is set to `null` by action of some auth/token verification middleware. The get request is successful but no user is logged in (i.e. no valid token in cookie) and no blog data is on the database.
-
-I then sign up using an authorization header `Basic auth`. User data is encrypted in a `base64` string. I also upload an image for the sake of demonstration. After that, for every other request I make I send a `json` body that looks like:
-
-```json
-{
-  "username": "<username here>"
-}
-```
-
-As long as there is an access token in the cookies (meaning the user either signed up or logged in at some point before that request) then I will always have access to the username every request regardless of the token's validity (expired or not). This is very important because when the access token expires (which it must do often) I must query the database for the refresh token. But I can never do that with an expired jwt. So, the solution is sending this json body. When the refresh token finally expires the cookies are cleared and you get back to the initial state where I get `{ user:null }` at the start of the video.
-
-The rest is standard routing. I handle get requests to signup and login pages while the user is logged in by sending a `302` status code indicating a redirect must happen. Otherwise, `200` is sent indicating that the user can indeed signup or login when they have no valid session.
+Postman was used for testing the REST API routes. It is useful for testing your routes and how you handle common errors too before you build your actual frontend. While I was building the react frontend meanwhile I used postman since the frontend is still incomplete and it has its own issues.
 
 ### References
 
