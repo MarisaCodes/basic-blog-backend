@@ -1,4 +1,4 @@
-# Basic Blog Backend (Basic Blog - Astro.js)
+# Basic Blog Backend (Frontend: [basic-blog-react](https://github.com/MarisaCodes/basic-blog-react))
 
 - [Database Schema](#database-schema)
 - [Server overview](#server-overview)
