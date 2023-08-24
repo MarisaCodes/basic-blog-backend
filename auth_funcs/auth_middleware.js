@@ -19,7 +19,7 @@ const auth_middleware = (req, res, next) => {
   const access_token = req.cookies?.access_token;
   if (!access_token) {
     // if no access token in cookies, move on to next middleware
-    res.clearCookie("access_token");
+    //res.clearCookie("access_token"); //redundant
     res.locals.user = null;
     next();
     return;

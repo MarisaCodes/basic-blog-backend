@@ -18,10 +18,25 @@ const jwt = require("jsonwebtoken");
 const sql = require("../model/db");
 
 require("dotenv").config();
-// GET auth
-const get_auth = (req, res) => {
-  res.status(200).json({ user: res.locals.user });
+// GET user profile as requested by the user
+const get_user_profile = (req, res) => {
+  if (!res.locals.user)
+    return res.status(400).json({ error: "user must be signed in!" });
+  const username = res.locals.user.username;
+  sql
+    .begin(async (sql) => {
+      return await sql`
+    select * from blogs where author_id = (select users.id from users where username = ${username})
+    `;
+    })
+    .then((data) => {
+      res.status(200).json({ blogs: data, user: res.locals.user });
+    })
+    .catch((err) => {
+      res.status(500).json({ error: err?.message || err });
+    });
 };
+
 // GET Signup page
 const get_signup = (req, res) => {
   sql`select username from users`
@@ -184,12 +199,24 @@ const post_login = (req, res) => {
       else res.status(500).json({ error: err?.message || err });
     });
 };
+
+const post_logout = (req, res) => {
+  if (!res.locals.user)
+    return res
+      .status(400)
+      .json({ error: "can't logout if you're not signed in 🐱‍👤" });
+  res.clearCookie("access_token");
+  res.locals.user = null;
+  res.status(200).send("success");
+};
+
 module.exports = {
-  get_auth,
+  get_user_profile,
   get_signup,
   upload,
   post_signup_controller,
   send_jwt,
   get_login,
   post_login,
+  post_logout,
 };
